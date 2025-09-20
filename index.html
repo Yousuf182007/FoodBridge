@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodBridge - Login</title>
+  <style>
+    /* Background */
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #285170, #132644);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+a{
+  text-decoration: none;
+  color: #f3f4f4;
+}
+    
+
+    /* Glassmorphic Card */
+    .login-card {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      width: 350px;
+      color: white;
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      outline: none;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: #1f2a44;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: #0e162b;
+      transform: scale(1.05);
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-card">
+    <h2>Food Donation Login</h2>
+
+    <label for="role">Login as</label>
+    <select id="role" onchange="toggleForm()">
+      <option value="">-- Select Role --</option>
+      <option value="donor">Donor</option>
+      <option value="volunteer">Volunteer</option>
+    </select>
+
+    <!-- Donor Form -->
+    <form id="donorForm" class="hidden">
+      <label>Organization</label>
+      <input type="text" placeholder="Enter Organization">
+
+      <label>E-mail</label>
+      <input type="email" placeholder="Enter email">
+
+      <label>Contact Number</label>
+      <input type="tel" placeholder="Enter Contact Number">
+
+      <a href="home1.html">
+        <div class="donor">
+          <button type="submit" class="btn"><a href="home1.html">Login as Donor</a></button>
+        </div>
+      </a>
+
+      
+    </form>
+
+    <!-- Volunteer Form -->
+    <form id="volunteerForm" class="hidden">
+      <label>Name</label>
+      <input type="text" placeholder="Enter Your Name"> 
+
+       <label>E-mail</label>
+      <input type="email" placeholder="Enter email">
+
+      <label>Contact Number</label>
+      <input type="tel" placeholder="Enter Contact Number">
+
+      <a href="home2.html"><button type="submit" class="btn"><a href="home2.html">Login as Volunteer</a></button></a>
+    </form>
+  </div>
+
+  <script>
+    function toggleForm() {
+      const role = document.getElementById("role").value;
+      document.getElementById("donorForm").classList.add("hidden");
+      document.getElementById("volunteerForm").classList.add("hidden");
+
+      if (role === "donor") {
+        document.getElementById("donorForm").classList.remove("hidden");
+      } else if (role === "volunteer") {
+        document.getElementById("volunteerForm").classList.remove("hidden");
+      }
+    }
+  </script>
+
+</body>
+</html>
