@@ -1,0 +1,36 @@
+
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Track — FoodBridge</title>
+<link rel="stylesheet" href="styles.css">
+<script defer src="app.js"></script>
+</head><body>
+<div class="container">
+  <nav class="nav">
+    <a class="brand" href="index.html"><img src="assets/logo.svg"><span>FoodBridge</span></a>
+    <div class="links"><a href="donate.html">Donate</a><a href="find.html">Find</a></div>
+  </nav>
+  <div class="card">
+    <h2>Transparent tracking</h2>
+    <p class="small">This demo tracks listings locally. In production this would be real-time across users.</p>
+    <table class="table" id="trk"><thead>
+      <tr><th>Food</th><th>Qty</th><th>Donor</th><th>Status</th><th>Receiver</th><th>Created</th></tr>
+    </thead><tbody></tbody></table>
+  </div>
+</div>
+<div class="toast"></div>
+<script>
+  function render(){
+    const items = getItems().slice().reverse();
+    const tb = document.querySelector("#trk tbody");
+    tb.innerHTML = items.map(x=>`
+      <tr>
+        <td>${x.type}</td><td>${x.qty}</td><td>${x.donor}</td>
+        <td><span class="status ${x.status}">${x.status}</span></td>
+        <td>${x.claimedBy? (x.claimedBy.name+" ("+x.claimedBy.phone+")") : "-"}</td>
+        <td>${fmtTime(x.createdAt)}</td>
+      </tr>`).join("");
+  }
+  render();
+</script>
+</body></html>

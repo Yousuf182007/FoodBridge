@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Find & Claim — FoodBridge</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Navigation Bar -->
+    <nav class="nav">
+      <a class="brand" href="index.html">
+        <img src="assets/logo.svg" alt="FoodBridge Logo">
+        <span>FoodBridge</span>
+      </a>
+      <div class="links">
+        <a href="donate.html">Donate</a>
+        <a href="track.html">Track</a>
+      </div>
+    </nav>
+
+    <!-- Food Listings -->
+    <div class="card">
+      <div class="header-row">
+        <h2>Available food near you</h2>
+        <button class="button" id="useLocationBtn">Use my GPS</button>
+      </div>
+
+      <table class="table" id="foodTable">
+        <thead>
+          <tr>
+            <th>Food</th>
+            <th>Qty</th>
+            <th>Donor</th>
+            <th>Pickup By</th>
+            <th>Distance</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Claim Form -->
+    <div class="card" style="margin-top:14px">
+      <h3>Claim as:</h3>
+      <div class="row">
+        <div>
+          <label for="claimerName">Your Name / NGO</label>
+          <input id="claimerName" placeholder="Volunteer / NGO"/>
+        </div>
+        <div>
+          <label for="claimerPhone">Contact Number</label>
+          <input id="claimerPhone" placeholder="Phone"/>
+        </div>
+      </div>
+      <p class="small">Enter your details, then click “Claim”.</p>
+    </div>
+  </div>
+
+  <div class="toast"></div>
+
+  <script>
+    let userLocation = null;
+
+    // Handle "Use my GPS" button
+    document.querySelector("#useLocationBtn").onclick = () => {
+      geolocate(position => {
+        userLocation = position;
+        renderFoodList();
+        showToast("Location updated.");
+      });
+    };
+
+    // Render available food listings
+    function renderFoodList() {
+      const allItems = getItems();
+
+      // Attach distance (if GPS is available) and filter only open listings
+      const openItems = allItems
+        .map(item => ({
+          ...item,
+          _distance: (userLocation && item.lat && item.lng)
+            ? distanceKm(userLocation, { lat: item.lat, lng: item.lng })
+            : null
+        }))
+        .filter(item => item.status === "open");
+
+      // Sort by distance (nearest first)
+      openItems.sort((a, b) => (a._distance ?? 1e9) - (b._distance ?? 1e9));
+
+      // Build table rows
+      const tableBody = document.querySelector("#foodTable tbody");
+      tableBody.innerHTML = openItems.map(item => `
+        <tr>
+          <td>${item.type}</td>
+          <td>${item.qty}</td>
+          <td>${item.donor}</td>
+          <td>${item.pickup || "-"}</td>
+          <td>${item._distance ? item._distance.toFixed(1) + " km" : "-"}</td>
+          <td>
+            <button class="button accent" onclick="claimFood('${item.id}')">
+              Claim
+            </button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    // Claim a food item
+    window.claimFood = (id) => {
+      const name = document.querySelector("#claimerName").value.trim();
+      const phone = document.querySelector("#claimerPhone").value.trim();
+
+      if (!name || !phone) {
+        alert("Please enter your name and phone number.");
+        return;
+      }
+
+      claimListing(id, { name, phone });
+      renderFoodList();
+    };
+
+    // Initial render
+    renderFoodList();
+  </script>
+</body>
+</html>

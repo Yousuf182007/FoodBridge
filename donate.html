@@ -1,0 +1,87 @@
+
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Donate Food — FoodBridge</title>
+<link rel="stylesheet" href="styles.css">
+<script defer src="app.js"></script>
+</head>
+<body>
+  <div class="container">
+    <nav class="nav">
+      <a class="brand" href="index.html"><img src="assets/logo.svg"><span>FoodBridge</span></a>
+      <div class="links"><a href="find.html">Find Food</a><a href="track.html">Track</a></div>
+    </nav>
+
+  <div class="card">
+    <h2 style="margin:4px 0 12px">List surplus food</h2>
+
+    <form action="https://api.web3forms.com/submit" method="POST" id="donorForm">
+       <input type="hidden" name="access_key" value="9eb4de3b-44bc-4142-b6e0-bfb5d456ae2e">
+
+      <div class="row">
+        <div><label>Donor / Organization</label><input required name="donor" placeholder="Restaurant / Hostel / Event"/></div>
+        <div><label>Contact Number</label><input required name="phone" placeholder="Phone"/></div>
+      </div>
+
+      <div class="row">
+        <div><label>Food Type</label><input required name="type" placeholder="e.g., Veg meals, Biryani"/></div>
+        <div><label>Quantity</label><input required name="qty" placeholder="e.g., 20 plates"/></div>
+      </div>
+
+      <div class="row">
+        <div><label>Pickup By (time)</label><input name="pickup" placeholder="e.g., 9:00 PM"/></div>
+        <div><label>Location (text)</label><input name="loc" placeholder="Address or landmark"/></div>
+      </div>
+
+      <label>Notes</label><textarea name="note" rows="3" placeholder="Hygiene info, packaging, etc."></textarea>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-top:10px">
+        <button class="button primary" type="submit">Publish Listing</button>
+        <button class="button" type="button" id="geoBtn">Use my GPS</button>
+        <span class="small">GPS helps sort receivers by distance.</span>
+      </div>
+
+      <input type="hidden" name="lat"><input type="hidden" name="lng">
+    </form>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h3>Your recent listings</h3>
+    <table class="table" id="myTable"><thead><tr><th>Food</th><th>Qty</th><th>Status</th><th>Created</th></tr></thead><tbody></tbody></table>
+  </div>
+</div>
+
+<div class="toast"></div>
+<script>
+  document.querySelector("#geoBtn").onclick = ()=>{
+    geolocate(pos=>{
+      if(!pos){ alert("Location permission denied."); return; }
+      document.querySelector("input[name=lat]").value = pos.lat;
+      document.querySelector("input[name=lng]").value = pos.lng;
+      showToast("GPS location captured.");
+    });
+  };
+  document.querySelector("#donorForm").onsubmit = (e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const data = Object.fromEntries(fd.entries());
+    if(data.lat) data.lat = +data.lat;
+    if(data.lng) data.lng = +data.lng;
+    createListing(data);
+    e.target.reset();
+    renderMine();
+  };
+  function renderMine(){
+    const items = getItems().slice(-8).reverse();
+    const tb = document.querySelector("#myTable tbody");
+    tb.innerHTML = items.map(x=>`
+      <tr>
+        <td>${x.type}</td>
+        <td>${x.qty}</td>
+        <td><span class="status ${x.status}">${x.status}</span></td>
+        <td>${fmtTime(x.createdAt)}</td>
+      </tr>`).join("");
+  }
+  renderMine();
+</script>
+</body></html>

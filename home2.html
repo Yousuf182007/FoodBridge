@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>FoodBridge — Connect surplus food to people in need</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="app.js"></script>
+</head>
+
+<body onload="seedIfEmpty()">
+  <div class="container">
+
+    <!-- Navigation Bar -->
+    <nav class="nav">
+      <a class="brand" href="index.html">
+        <span>FoodBridge</span>
+      </a>
+      <div class="links">
+        <a href="donate.html">Donate Food</a>
+        <a href="find.html">Find Food</a>
+        <a href="track.html">Track</a>
+        <a href="about.html">About</a>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <span class="badge">Real-time matching • Transparent tracking</span>
+
+        <h1 class="headline">
+          A bridge between waste and hope, between abundance and need.
+        </h1>
+
+        <p class="subtext">
+          FoodBridge connects hostels, restaurants, and event organizers with nearby NGOs and volunteers.
+          List surplus food, notify the closest receivers, and track the journey end-to-end.
+        </p>
+
+        <div class="cta-buttons">
+        
+          <a class="button accent" href="find.html">Find &amp; Claim</a>
+          <a class="button" href="about.html">How it works</a>
+        </div>
+
+        <!-- Key Performance Indicators -->
+        <div class="kpis">
+          <div class="kpi">
+            <span class="small">Meals Saved</span>
+            <b id="mealsSaved">0</b>
+          </div>
+          <div class="kpi">
+            <span class="small">Avg. Pickup Time</span>
+            <b>18 min</b>
+          </div>
+          <div class="kpi">
+            <span class="small">Active Donors</span>
+            <b>23</b>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Listings Sidebar -->
+      <div class="card">
+        <h3>Live Listings (near you)</h3>
+        <div class="small maphint">Allow location to sort by distance.</div>
+        
+        <table class="table" id="liveListingsTable">
+          <thead>
+            <tr>
+              <th>Food</th>
+              <th>Qty</th>
+              <th>Donor</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <div class="view-more">
+          <a class="button accent" href="find.html">View &amp; claim →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Impact Section -->
+    <section class="grid">
+      <div class="card">
+        <h3>Social Impact</h3>
+        <p>Reduce hunger by making surplus food accessible to NGOs and shelters.</p>
+      </div>
+      <div class="card">
+        <h3>Environmental Impact</h3>
+        <p>Cut methane emissions by preventing food from rotting in landfills.</p>
+      </div>
+      <div class="card">
+        <h3>Economic Impact</h3>
+        <p>Lower disposal costs for restaurants and institutions.</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      “If you can’t feed a hundred people, then feed just one.” — Mother Teresa
+    </footer>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast"></div>
+
+  <!-- Page Script -->
+  <script>
+    // Get user location and update live listings
+    geolocate(userLocation => {
+      const allListings = getItems();
+
+      // Add distance info (if location is available)
+      const listingsWithDistance = allListings.map(item => ({
+        ...item,
+        _distance: (userLocation && item.lat && item.lng)
+          ? distanceKm(userLocation, { lat: item.lat, lng: item.lng })
+          : null
+      }));
+
+      // Sort listings by distance (closest first)
+      listingsWithDistance.sort((a, b) => (a._distance ?? 1e9) - (b._distance ?? 1e9));
+
+      // Render top 6 listings
+      const tableBody = document.querySelector("#liveListingsTable tbody");
+      tableBody.innerHTML = listingsWithDistance.slice(0, 6).map(item => `
+        <tr>
+          <td>${item.type}</td>
+          <td>${item.qty}</td>
+          <td>${item.donor}</td>
+          <td>
+            <span class="status ${item.status}">${item.status}</span>
+            ${item._distance ? `<span class="small">· ${item._distance.toFixed(1)} km</span>` : ""}
+          </td>
+        </tr>
+      `).join("");
+
+      // Update meals saved counter
+      const mealsSaved = allListings.filter(i => i.status === "claimed").length;
+      document.querySelector("#mealsSaved").textContent = mealsSaved;
+    });
+  </script>
+</body>
+</html>
